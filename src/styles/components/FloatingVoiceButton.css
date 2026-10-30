@@ -1,0 +1,43 @@
+.floating-voice-wrapper {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 64px;
+  height: 64px;
+  z-index: 999;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floating-voice-btn {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  position: relative;
+}
+
+.floating-voice-btn .mic-icon {
+  color: white;
+  font-size: 28px;
+}
+
+/* Reusing mic-ring and mic-pulse from global styles/components, 
+   but ensuring they center on this button properly */
+.floating-voice-wrapper .mic-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--color-error, #ef4444);
+  opacity: 0;
+  pointer-events: none;
+}

@@ -1,0 +1,184 @@
+/* ============================================
+   VOICESPEND DESIGN SYSTEM — CSS VARIABLES
+   ============================================ */
+
+:root {
+  /* ─── Brand Colors ─── */
+  --color-primary: #7C3AED;            /* violet-600 */
+  --color-primary-hover: #6D28D9;      /* violet-700 */
+  --color-primary-light: #EDE9FE;      /* violet-100 */
+  --color-primary-glow: rgba(124, 58, 237, 0.35);
+  --color-primary-container: #DDD6FE;  /* violet-200 */
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #4C1D95;
+
+  /* ─── Secondary (Emerald/Teal) ─── */
+  --color-secondary: #059669;          /* emerald-600 */
+  --color-secondary-hover: #047857;
+  --color-secondary-light: #D1FAE5;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #064E3B;
+  --color-secondary-container: #A7F3D0;
+
+  /* ─── Surfaces (Light Mode) ─── */
+  --color-bg: #F8F7FF;                 /* soft violet-tinted white */
+  --color-surface: #FFFFFF;
+  --color-surface-variant: #F3F0FF;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #F5F3FF;
+  --color-surface-container: #EEE9FF;
+  --color-surface-container-high: #E4DFFF;
+
+  /* ─── Text ─── */
+  --color-on-surface: #1A0A2E;
+  --color-on-surface-variant: #5B5278;
+  --color-on-surface-muted: #9B93B8;
+
+  /* ─── Borders & Outlines ─── */
+  --color-outline: #9B93B8;
+  --color-outline-variant: #DDD6FE;
+  --color-outline-muted: #EDE9FE;
+
+  /* ─── Status Colors ─── */
+  --color-error: #DC2626;
+  --color-error-light: #FEE2E2;
+  --color-error-glow: rgba(220, 38, 38, 0.35);
+  --color-warning: #D97706;
+  --color-warning-light: #FEF3C7;
+  --color-success: #059669;
+  --color-success-light: #D1FAE5;
+
+  /* ─── Typography ─── */
+  --font-family-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-family-body: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-base: 15px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
+  --font-size-4xl: 36px;
+  --font-size-5xl: 48px;
+
+  /* Legacy vars (keep for component compatibility) */
+  --font-size-display-lg: 32px;
+  --line-height-display-lg: 40px;
+  --letter-spacing-display-lg: -0.02em;
+  --font-size-headline-sm: 20px;
+  --line-height-headline-sm: 28px;
+  --font-size-headline-md: 24px;
+  --font-size-headline-lg: 28px;
+  --font-size-label-md: 14px;
+  --line-height-label-md: 20px;
+  --letter-spacing-label-md: 0.02em;
+  --font-size-label-sm: 12px;
+  --line-height-label-sm: 16px;
+  --font-size-label-lg: 16px;
+  --font-size-body-md: 15px;
+  --line-height-body-md: 24px;
+  --font-size-body-sm: 13px;
+  --line-height-body-sm: 20px;
+  --font-size-body-lg: 17px;
+  --font-size-mono-data: 16px;
+
+  /* ─── Spacing ─── */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+
+  /* Legacy spacing */
+  --spacing-stack-sm: 8px;
+  --spacing-stack-md: 16px;
+  --spacing-stack-lg: 24px;
+  --spacing-section-gap: 48px;
+  --spacing-gutter: 24px;
+  --spacing-container-max-width: 900px;
+
+  /* ─── Border Radius ─── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+  --radius-DEFAULT: 10px;
+
+  /* ─── Shadows ─── */
+  --shadow-xs: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --shadow-sm: 0 2px 8px -1px rgba(124,58,237,0.08), 0 1px 3px -1px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px -2px rgba(124,58,237,0.12), 0 2px 6px -2px rgba(0,0,0,0.08);
+  --shadow-lg: 0 10px 32px -4px rgba(124,58,237,0.16), 0 4px 12px -4px rgba(0,0,0,0.10);
+  --shadow-xl: 0 20px 48px -8px rgba(124,58,237,0.20), 0 8px 20px -6px rgba(0,0,0,0.12);
+  --shadow-glow: 0 0 24px rgba(124,58,237,0.30);
+  --shadow-glow-error: 0 0 24px rgba(220,38,38,0.40);
+
+  /* ─── Glass ─── */
+  --glass-bg: rgba(255,255,255,0.72);
+  --glass-border: rgba(255,255,255,0.50);
+  --glass-blur: blur(20px);
+
+  /* ─── Transitions ─── */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   DARK MODE OVERRIDES
+   ============================================ */
+[data-theme="dark"] {
+  --color-bg: #0D0B14;
+  --color-surface: #13101F;
+  --color-surface-variant: #1A1628;
+  --color-surface-container-lowest: #0D0B14;
+  --color-surface-container-low: #13101F;
+  --color-surface-container: #1A1628;
+  --color-surface-container-high: #221D35;
+
+  --color-on-surface: #F0EEFF;
+  --color-on-surface-variant: #B8B0D8;
+  --color-on-surface-muted: #6B6488;
+
+  --color-outline: #4A4468;
+  --color-outline-variant: #2A2540;
+  --color-outline-muted: #1E1B30;
+
+  --color-primary: #A78BFA;
+  --color-primary-hover: #8B5CF6;
+  --color-primary-light: rgba(167,139,250,0.15);
+  --color-primary-glow: rgba(167,139,250,0.40);
+  --color-primary-container: #4C1D95;
+  --color-on-primary: #1A0050;
+  --color-on-primary-container: #DDD6FE;
+
+  --color-secondary: #34D399;
+  --color-secondary-hover: #10B981;
+  --color-secondary-light: rgba(52,211,153,0.15);
+  --color-secondary-container: #064E3B;
+  --color-on-secondary: #022C22;
+  --color-on-secondary-container: #A7F3D0;
+  --color-on-secondary-fixed-variant: #34D399;
+
+  --color-error: #F87171;
+  --color-error-light: rgba(248,113,113,0.15);
+  --color-error-glow: rgba(248,113,113,0.40);
+
+  --glass-bg: rgba(19,16,31,0.75);
+  --glass-border: rgba(167,139,250,0.18);
+
+  --shadow-sm: 0 2px 8px -1px rgba(0,0,0,0.30), 0 1px 3px -1px rgba(0,0,0,0.20);
+  --shadow-md: 0 4px 16px -2px rgba(0,0,0,0.40), 0 2px 6px -2px rgba(0,0,0,0.20);
+  --shadow-lg: 0 10px 32px -4px rgba(0,0,0,0.50), 0 4px 12px -4px rgba(0,0,0,0.25);
+}

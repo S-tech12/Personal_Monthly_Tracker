@@ -1,0 +1,72 @@
+/* ─── Card ─── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow var(--transition-base), transform var(--transition-base), border-color var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-primary-light), transparent);
+  opacity: 0.8;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--color-primary-light);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-headline-sm);
+  line-height: var(--line-height-headline-sm);
+  color: var(--color-on-surface);
+  font-weight: 700;
+  margin: 0;
+}
+
+.card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Elevated card variant */
+.card.elevated {
+  box-shadow: var(--shadow-md);
+  border-color: transparent;
+}
+
+/* Glass card variant */
+.card.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-color: var(--glass-border);
+}
+
+/* Error state */
+.card.border-error {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 1px var(--color-error-light);
+}

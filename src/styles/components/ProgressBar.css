@@ -1,0 +1,44 @@
+/* ─── ProgressBar ─── */
+.progress-container {
+  width: 100%;
+  background: var(--color-outline-muted);
+  height: 8px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: 0.75rem;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+/* Animated shine */
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30%;
+  height: 100%;
+  background: rgba(255,255,255,0.3);
+  border-radius: var(--radius-full);
+}
+
+.progress-fill.primary {
+  background: linear-gradient(90deg, var(--color-primary), #A855F7);
+}
+
+.progress-fill.secondary {
+  background: linear-gradient(90deg, var(--color-secondary), #34D399);
+}
+
+.progress-fill.error {
+  background: linear-gradient(90deg, var(--color-error), #F87171);
+}
+
+.progress-fill.tertiary {
+  background: linear-gradient(90deg, #D97706, #FBBF24);
+}
