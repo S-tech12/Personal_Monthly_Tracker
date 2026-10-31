@@ -34,7 +34,7 @@ export const notificationsService = {
             id: '4',
             type: 'update',
             title: 'Update Available',
-            message: 'VoiceSpend v2.4 is now available. Check out the new bento grid analytics view!',
+            message: 'Spendly v2.4 is now available. Check out the new bento grid analytics view!',
             timestamp: 'Yesterday',
             isRead: true
           }

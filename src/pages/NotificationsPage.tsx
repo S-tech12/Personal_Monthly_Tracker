@@ -24,7 +24,7 @@ export const NotificationsPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="notifications-page">
-        <Header title="VoiceSpend" navItems={MAIN_NAV_ITEMS} />
+        <Header title="Spendly" navItems={MAIN_NAV_ITEMS} />
         <Loader text="Loading notifications..." />
         <BottomNav navItems={MAIN_NAV_ITEMS} />
       </div>
@@ -33,7 +33,7 @@ export const NotificationsPage: React.FC = () => {
 
   return (
     <div className="notifications-page">
-      <Header title="VoiceSpend" navItems={MAIN_NAV_ITEMS} />
+      <Header title="Spendly" navItems={MAIN_NAV_ITEMS} />
 
       {/* Hero Header */}
       <Section variant="gradient" className="notifications-hero-section">

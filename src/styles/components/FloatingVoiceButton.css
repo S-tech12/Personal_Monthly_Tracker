@@ -11,6 +11,15 @@
   justify-content: center;
 }
 
+.floating-voice-wrapper.is-locked {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.floating-voice-wrapper.is-locked .floating-voice-btn {
+  filter: grayscale(0.18);
+}
+
 .floating-voice-btn {
   width: 56px;
   height: 56px;

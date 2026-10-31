@@ -135,6 +135,22 @@
   box-shadow: 0 12px 30px -4px var(--color-primary-glow);
 }
 
+.hero-cta-btn:disabled,
+.voice-cmd-compact-btn:disabled,
+.voice-cmd-standard-btn:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+  filter: grayscale(0.18);
+  transform: none;
+}
+
+.hero-cta-btn:disabled:hover,
+.voice-cmd-compact-btn:disabled:hover,
+.voice-cmd-standard-btn:disabled:hover {
+  transform: none;
+  box-shadow: 0 8px 24px -4px var(--color-primary-glow);
+}
+
 .hero-cta-btn.listening {
   background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
   box-shadow: 0 8px 24px -4px rgba(220, 38, 38, 0.4);
@@ -400,6 +416,42 @@
 
 .hero-feature-action-btn:hover {
   opacity: 0.94;
+  transform: translateY(-1px);
+}
+
+.hero-feature-action-btn:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+  filter: grayscale(0.18);
+}
+
+.hero-feature-action-btn:disabled:hover {
+  opacity: 0.72;
+  transform: none;
+}
+
+.hero-manual-entry-btn {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 0.625rem;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-family-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.hero-manual-entry-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
   transform: translateY(-1px);
 }
 
@@ -705,6 +757,36 @@
 .summary-metric-block:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+}
+
+.balance-metric {
+  min-height: 150px;
+}
+
+.balance-amount {
+  font-size: clamp(1.625rem, 3.5vw, 2.25rem);
+}
+
+.income-amount {
+  color: var(--color-secondary);
+}
+
+.expense-amount {
+  color: var(--color-error);
+}
+
+.zero-amount {
+  color: var(--color-on-surface);
+}
+
+.monthly-total-metric.is-positive .metric-icon,
+.monthly-total-metric.is-positive .balance-amount {
+  color: var(--color-secondary);
+}
+
+.monthly-total-metric.is-negative .metric-icon,
+.monthly-total-metric.is-negative .balance-amount {
+  color: var(--color-error);
 }
 
 .metric-header-row {

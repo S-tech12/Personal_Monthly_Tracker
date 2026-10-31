@@ -32,7 +32,7 @@ export const FloatingVoiceButton: React.FC = () => {
 
   return (
     <>
-      <div className="floating-voice-wrapper" onClick={toggleMic}>
+      <div className="floating-voice-wrapper is-locked" aria-disabled="true" title="Voice command is locked">
         <div className={`mic-ring ${isListening ? 'mic-pulse opacity-100' : ''}`}></div>
         <div 
           className="floating-voice-btn"
@@ -43,7 +43,7 @@ export const FloatingVoiceButton: React.FC = () => {
           }}
         >
           <span className="material-symbols-outlined mic-icon">
-            {isListening ? 'stop' : 'mic'}
+            lock
           </span>
         </div>
       </div>

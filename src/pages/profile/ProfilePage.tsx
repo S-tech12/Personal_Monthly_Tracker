@@ -48,7 +48,7 @@ export const ProfilePage: React.FC = () => {
 
   return (
     <div className="profile-page">
-      <Header title="VoiceSpend" navItems={MAIN_NAV_ITEMS} />
+      <Header title="Spendly" navItems={MAIN_NAV_ITEMS} />
 
       {/* Hero Header */}
       <Section variant="gradient" className="profile-hero-section">

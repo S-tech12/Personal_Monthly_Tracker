@@ -9,7 +9,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   rightActionNode?: React.ReactNode;
 }
 
-export const Input: React.FC<InputProps> = ({ 
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(({ 
   label, 
   id, 
   className = '', 
@@ -18,7 +18,7 @@ export const Input: React.FC<InputProps> = ({
   onRightIconClick, 
   rightActionNode, 
   ...props 
-}) => {
+}, ref) => {
   return (
     <div className={`input-container ${className}`}>
       {(label || rightActionNode) && (
@@ -32,6 +32,7 @@ export const Input: React.FC<InputProps> = ({
           <span className="material-symbols-outlined input-left-icon">{leftIcon}</span>
         )}
         <input 
+          ref={ref}
           id={id}
           className={`input-field ${leftIcon ? 'has-left-icon' : ''} ${rightIcon ? 'has-right-icon' : ''}`} 
           {...props} 
@@ -50,4 +51,6 @@ export const Input: React.FC<InputProps> = ({
       </div>
     </div>
   );
-};
+});
+
+Input.displayName = 'Input';

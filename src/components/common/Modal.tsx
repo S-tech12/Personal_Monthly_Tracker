@@ -6,12 +6,14 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  size?: 'default' | 'wide';
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 'default' }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (isOpen && (e.key === 'Escape' || (e.altKey && e.key.toLowerCase() === 'x'))) {
+        e.preventDefault();
         onClose();
       }
     };
@@ -24,7 +26,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
   return (
     <div className="modal-overlay">
       <div className="modal-backdrop" onClick={onClose} />
-      <div className={`modal-content ${isOpen ? 'open' : ''}`}>
+      <div className={`modal-content ${size === 'wide' ? 'wide' : ''} ${isOpen ? 'open' : ''}`}>
         <div className="modal-body">
           <div className="modal-header">
             <h2 className="modal-title">{title}</h2>

@@ -5,7 +5,7 @@ export const profileService = {
   getUserProfile: async (): Promise<UserProfile> => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve({ email: 'user@voicespend.io' });
+        resolve({ email: 'user@spendly.io' });
       }, 500);
     });
   },

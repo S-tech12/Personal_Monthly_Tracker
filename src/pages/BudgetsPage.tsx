@@ -99,7 +99,7 @@ export const BudgetsPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="budgets-page">
-        <Header title="VoiceSpend" navItems={MAIN_NAV_ITEMS} />
+        <Header title="Spendly" navItems={MAIN_NAV_ITEMS} />
         <Loader text="Loading budget intelligence..." />
         <BottomNav navItems={MAIN_NAV_ITEMS} />
       </div>
@@ -108,7 +108,7 @@ export const BudgetsPage: React.FC = () => {
 
   return (
     <div className="budgets-page">
-      <Header title="VoiceSpend" navItems={MAIN_NAV_ITEMS} />
+      <Header title="Spendly" navItems={MAIN_NAV_ITEMS} />
 
       {/* SECTION 1: HERO (Gradient background, big headline, alerts, status pills) */}
       <Section variant="gradient" className="budgets-hero-section">

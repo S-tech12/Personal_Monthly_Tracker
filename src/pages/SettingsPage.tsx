@@ -65,7 +65,7 @@ export const SettingsPage: React.FC = () => {
   if (isLoading || !settings) {
     return (
       <div className="settings-page">
-        <Header title="VoiceSpend" navItems={MAIN_NAV_ITEMS} />
+        <Header title="Spendly" navItems={MAIN_NAV_ITEMS} />
         <Loader text="Loading account settings..." />
         <BottomNav navItems={MAIN_NAV_ITEMS} />
       </div>
@@ -74,7 +74,7 @@ export const SettingsPage: React.FC = () => {
 
   return (
     <div className="settings-page">
-      <Header title="VoiceSpend" navItems={MAIN_NAV_ITEMS} />
+      <Header title="Spendly" navItems={MAIN_NAV_ITEMS} />
 
       {/* Hero Header */}
       <Section variant="gradient" className="settings-hero-section">

@@ -28,7 +28,7 @@ export const expenseService = {
     return data;
   },
 
-  createBulk: async (expenses: Array<Pick<Expense, 'title' | 'category' | 'amount' | 'currency'>>) => {
+  createBulk: async (expenses: Array<Pick<Expense, 'title' | 'category' | 'amount' | 'currency' | 'type'>>) => {
     const response = await fetch('http://localhost:5000/api/expenses/bulk', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ expenses })
     });
@@ -59,7 +59,8 @@ export const expenseService = {
       const response = await fetch('http://localhost:5000/api/expenses/summary', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
+        credentials: 'include',
+        cache: 'no-store'
       });
       const data = await response.json();
       if (!response.ok) {
@@ -103,5 +104,27 @@ export const expenseService = {
     } catch (error: any) {
       throw new Error(error.message || 'Network error occurred');
     }
+  },
+
+  getCurrentMonthExpenses: async (): Promise<RecentExpensesResponse> => {
+    const response = await fetch('http://localhost:5000/api/expenses/current-month', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Failed to fetch current month transactions');
+    return data;
+  },
+
+  getCurrentWeekExpenses: async (): Promise<RecentExpensesResponse> => {
+    const response = await fetch('http://localhost:5000/api/expenses/current-week', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Failed to fetch current week transactions');
+    return data;
   }
 };

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '../components/common/Header';
+import { Modal } from '../components/common/Modal';
 import { BottomNav } from '../components/common/BottomNav';
 import { Table } from '../components/common/Table';
 import type { Column } from '../components/common/Table';
@@ -38,27 +39,58 @@ export const DashboardPage: React.FC = () => {
 
   const { breakdown, isLoading: isBreakdownLoading, refetch: refetchBreakdown } = useCategoryBreakdown();
   const { expenses, isLoading: isExpensesLoading, refetch: refetchRecent } = useRecentExpenses();
-  const { summary, isLoading: isSummaryLoading, refetch: refetchSummary } = useExpenseSummary();
+  const { summary, isLoading: isSummaryLoading, refetch: refetchSummary, applySavedTransactions } = useExpenseSummary();
   const { overallBudgets, isLoading: isBudgetLoading, refetch: refetchBudget } = useBudgetSummary();
   const { user } = useAuth();
   const { overview, isLoading: isConnectionsLoading } = useFamily();
   const hasFamily = overview?.hasFamily || false;
+  const designCurrency = user?.defaultCurrency || 'USD';
+  const manualTransaction = useMemo(() => ({
+    title: '', category: 'Food', amount: 0, currency: designCurrency, type: 'Debit' as const
+  }), [designCurrency]);
+  const getCurrencyTotal = (items: Array<{ currency: string; total: number }> = []) =>
+    items.find(item => item.currency === designCurrency)?.total || 0;
+  const totalIncome = getCurrencyTotal(summary?.income?.thisMonth);
+  const totalExpenses = getCurrencyTotal(summary?.expenses?.thisMonth);
+  const monthlyTotal = totalIncome - totalExpenses;
+  const isMonthlyTotalPositive = monthlyTotal >= 0;
 
   // Voice Modals State
   const [isVoiceInputModalOpen, setIsVoiceInputModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isManualEntryModalOpen, setIsManualEntryModalOpen] = useState(false);
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [extractedData, setExtractedData] = useState<ExtractedTransaction | null>(null);
   const [extractedTransactions, setExtractedTransactions] = useState<ExtractedTransaction[]>([]);
   const [isParsing, setIsParsing] = useState(false);
   const [parseError, setParseError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isCurrentMonthModalOpen, setIsCurrentMonthModalOpen] = useState(false);
+  const [currentMonthExpenses, setCurrentMonthExpenses] = useState<Expense[]>([]);
+  const [isCurrentMonthLoading, setIsCurrentMonthLoading] = useState(false);
 
-  const refreshAllData = () => {
-    refetchRecent();
-    if (refetchSummary) refetchSummary();
-    if (refetchBudget) refetchBudget();
-    if (refetchBreakdown) refetchBreakdown();
+  const refreshAllData = async () => {
+    // Wait for the summary request so the income, expense, and monthly-total
+    // cards are updated before the save flow finishes.
+    await Promise.all([
+      refetchRecent(),
+      refetchSummary(),
+      refetchBudget(),
+      refetchBreakdown()
+    ]);
+  };
+
+  const handleViewCurrentMonth = async () => {
+    setIsCurrentMonthModalOpen(true);
+    setIsCurrentMonthLoading(true);
+    try {
+      const response = await expenseService.getCurrentWeekExpenses();
+      setCurrentMonthExpenses(response.data.expenses);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to load current month transactions');
+    } finally {
+      setIsCurrentMonthLoading(false);
+    }
   };
 
   const handleOpenVoiceInput = (initialPrompt: string = '') => {
@@ -103,8 +135,12 @@ export const DashboardPage: React.FC = () => {
     try {
       await expenseService.createBulk(Array.isArray(finalData) ? finalData : [finalData]);
 
+      // Update the dashboard immediately from the confirmed saved payload.
+      // The server refresh below then reconciles it with the authoritative data.
+      applySavedTransactions(finalData);
+
       toast.success('Transaction saved successfully!');
-      refreshAllData();
+      await refreshAllData();
     } catch (err: any) {
       const msg = err.response?.data?.message || err.message || 'Failed to save transaction';
       toast.error(msg);
@@ -122,7 +158,7 @@ export const DashboardPage: React.FC = () => {
   if (isDashboardLoading || isSummaryLoading || isConnectionsLoading || !data) {
     return (
       <div className="dashboard-page">
-        <Header title="VoiceSpend" navItems={MAIN_NAV_ITEMS} />
+        <Header title="Spendly" navItems={MAIN_NAV_ITEMS} />
         <Loader text="Loading your financial dashboard..." />
         <BottomNav navItems={MAIN_NAV_ITEMS} />
       </div>
@@ -221,12 +257,13 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="dashboard-page">
-      <Header title="VoiceSpend" navItems={MAIN_NAV_ITEMS} />
+      <Header title="Spendly" navItems={MAIN_NAV_ITEMS} />
 
       {/* SECTION 1: HERO (Gradient background, big headline, CTAs, interactive visual wave card) */}
       <Section variant="gradient" noPadding className="hero-section-container">
         <HeroSection
           onOpenVoiceModal={() => handleOpenVoiceInput()}
+          onOpenManualEntry={() => setIsManualEntryModalOpen(true)}
           onSendReport={handleSendReport}
           onQuickPrompt={handleOpenVoiceInput}
         />
@@ -322,6 +359,50 @@ export const DashboardPage: React.FC = () => {
                 </div>
               ))
             )}
+          </div>
+
+          <div className="summary-metric-block balance-metric income-metric">
+            <div className="metric-header-row">
+              <div className="metric-title-group">
+                <span className="material-symbols-outlined metric-icon">trending_up</span>
+                <span className="metric-title">Total Income</span>
+              </div>
+            </div>
+            <div className="summary-value-wrapper">
+              <span className={`summary-amount balance-amount income-amount ${totalIncome === 0 ? 'zero-amount' : ''}`}>
+                {formatAmountWithCurrency(totalIncome, designCurrency)}
+              </span>
+            </div>
+          </div>
+
+          <div className="summary-metric-block balance-metric expense-metric">
+            <div className="metric-header-row">
+              <div className="metric-title-group">
+                <span className="material-symbols-outlined metric-icon">trending_down</span>
+                <span className="metric-title">Total Expenses</span>
+              </div>
+            </div>
+            <div className="summary-value-wrapper">
+              <span className={`summary-amount balance-amount expense-amount ${totalExpenses === 0 ? 'zero-amount' : ''}`}>
+                {formatAmountWithCurrency(totalExpenses, designCurrency)}
+              </span>
+            </div>
+          </div>
+
+          <div className={`summary-metric-block balance-metric monthly-total-metric ${isMonthlyTotalPositive ? 'is-positive' : 'is-negative'}`}>
+            <div className="metric-header-row">
+              <div className="metric-title-group">
+                <span className="material-symbols-outlined metric-icon">
+                  {isMonthlyTotalPositive ? 'arrow_upward' : 'arrow_downward'}
+                </span>
+                <span className="metric-title">Monthly Total</span>
+              </div>
+            </div>
+            <div className="summary-value-wrapper">
+              <span className={`summary-amount balance-amount ${monthlyTotal === 0 ? 'zero-amount' : ''}`}>
+                {formatAmountWithCurrency(Math.abs(monthlyTotal), designCurrency)}
+              </span>
+            </div>
           </div>
         </div>
       </Section>
@@ -530,10 +611,10 @@ export const DashboardPage: React.FC = () => {
             <h2 className="section-display-title">Recent Transactions</h2>
             <p className="section-display-subtitle">Latest expenses logged into your cloud ledger.</p>
           </div>
-          <Link to={ROUTES.HISTORY} className="section-inline-link">
-            <span>View Complete History</span>
+          <button type="button" onClick={handleViewCurrentMonth} className="section-inline-link">
+            <span>View More</span>
             <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>arrow_forward</span>
-          </Link>
+          </button>
         </div>
 
         {isExpensesLoading ? (
@@ -554,7 +635,7 @@ export const DashboardPage: React.FC = () => {
             {/* Desktop & Tablet Table (>= 640px) */}
             <div className="desktop-table-container">
               <Table 
-                data={expenses} 
+                data={expenses.slice(0, 5)} 
                 columns={expensesColumns}
                 keyExtractor={(item) => item._id}
               />
@@ -562,7 +643,7 @@ export const DashboardPage: React.FC = () => {
 
             {/* Mobile Cards Stack (< 640px) to prevent awkward table overflow */}
             <div className="mobile-expenses-stack">
-              {expenses.map((expense) => {
+              {expenses.slice(0, 5).map((expense) => {
                 const iconMap: Record<string, string> = {
                   'Food': 'restaurant',
                   'Transport': 'commute',
@@ -655,6 +736,29 @@ export const DashboardPage: React.FC = () => {
       {/* Bottom Nav for mobile tab switching */}
       <BottomNav navItems={MAIN_NAV_ITEMS} />
 
+      <Modal
+        isOpen={isCurrentMonthModalOpen}
+        onClose={() => setIsCurrentMonthModalOpen(false)}
+        title="Current Week Transactions"
+        size="wide"
+      >
+        {isCurrentMonthLoading ? (
+          <div style={{ padding: '2rem 0' }}><Skeleton /></div>
+        ) : currentMonthExpenses.length === 0 ? (
+          <div className="transactions-empty-state">
+            <p className="empty-title">No transactions this week</p>
+          </div>
+        ) : (
+          <div className="desktop-table-container" style={{ overflowX: 'auto' }}>
+            <Table
+              data={currentMonthExpenses}
+              columns={expensesColumns}
+              keyExtractor={(item) => item._id}
+            />
+          </div>
+        )}
+      </Modal>
+
       {/* Voice Modals Flow (Modal 1: Voice Input -> Modal 2: Confirm Transaction) */}
       <VoiceInputModal
         isOpen={isVoiceInputModalOpen}
@@ -677,6 +781,17 @@ export const DashboardPage: React.FC = () => {
         onBack={handleBackToInput}
         onSave={handleSaveTransaction}
         isSaving={isSaving}
+      />
+
+      <ConfirmTransactionModal
+        isOpen={isManualEntryModalOpen}
+        transaction={manualTransaction}
+        onClose={() => setIsManualEntryModalOpen(false)}
+        onBack={() => setIsManualEntryModalOpen(false)}
+        onSave={handleSaveTransaction}
+        isSaving={isSaving}
+        startInEditMode
+        isManualEntry
       />
     </div>
   );

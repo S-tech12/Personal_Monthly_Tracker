@@ -45,7 +45,7 @@ export const SignupPage: React.FC = () => {
           <div className="auth-brand-icon">
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>mic</span>
           </div>
-          <span className="auth-brand-name">VoiceSpend</span>
+          <span className="auth-brand-name">Spendly</span>
         </Link>
         <ThemeToggle />
       </div>
@@ -111,7 +111,7 @@ export const SignupPage: React.FC = () => {
           <main className="signup-container">
             <div className="signup-header">
               <h2 className="signup-card-title">Create Account</h2>
-              <p className="signup-card-subtitle">Get started with VoiceSpend for free.</p>
+              <p className="signup-card-subtitle">Get started with Spendly for free.</p>
             </div>
 
             <div className="signup-card">

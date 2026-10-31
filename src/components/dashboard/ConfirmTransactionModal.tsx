@@ -23,21 +23,27 @@ interface ConfirmTransactionModalProps {
   onBack: () => void;
   onSave: (finalTransaction: ExtractedTransaction | ExtractedTransaction[]) => Promise<void>;
   isSaving?: boolean;
+  startInEditMode?: boolean;
+  isManualEntry?: boolean;
 }
 
 const ALLOWED_CATEGORIES = [
   'Food', 'Transport', 'Rent', 'Shopping',
   'Entertainment', 'Bills', 'Health', 'Other'
 ];
+const ALLOWED_INCOME_CATEGORIES = ['Salary', 'Freelancing', 'Sales', 'Gift', 'Refund', 'Other'];
+const EMPTY_TRANSACTIONS: ExtractedTransaction[] = [];
 
 export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = ({
   isOpen,
   transaction,
-  transactions = [],
+  transactions,
   onClose,
   onBack,
   onSave,
-  isSaving = false
+  isSaving = false,
+  startInEditMode = false,
+  isManualEntry = false
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
@@ -46,33 +52,43 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
   const [editedType, setEditedType] = useState<'Debit' | 'Credit'>('Debit');
   const [validationError, setValidationError] = useState<string | null>(null);
   const [showSuccessCheck, setShowSuccessCheck] = useState(false);
-  const isMultiple = transactions.length > 1;
+  const transactionList = transactions ?? EMPTY_TRANSACTIONS;
+  const isMultiple = transactionList.length > 1;
   const [editedTransactions, setEditedTransactions] = useState<ExtractedTransaction[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const modalContainerRef = useRef<HTMLDivElement>(null);
+  const amountInputRef = useRef<HTMLInputElement>(null);
+  const debitButtonRef = useRef<HTMLButtonElement>(null);
+  const creditButtonRef = useRef<HTMLButtonElement>(null);
+  const categorySelectRef = useRef<HTMLSelectElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const reviewButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Sync state whenever transaction changes or modal opens
+  // Initialize the editable draft only when a modal session starts or its
+  // source transaction changes. Do not depend on draft state here, otherwise
+  // every keystroke can reset the user's input back to the source value.
   useEffect(() => {
+    if (!isOpen) return;
+
     if (transaction) {
-      setEditedTitle(transaction.title || 'Expense');
+      setEditedTitle(transaction.title || (isManualEntry ? '' : 'Expense'));
       setEditedCategory(transaction.category || 'Food');
       setEditedAmount(transaction.amount ? String(transaction.amount) : '');
       setEditedType(transaction.type || 'Debit');
-      setIsEditing(false);
+      setIsEditing(startInEditMode);
       setValidationError(null);
       setShowSuccessCheck(false);
     }
-    if (transactions.length) {
-      setEditedTransactions(transactions);
+    if (transactionList.length) {
+      setEditedTransactions(transactionList);
       setSelectedIndex(0);
     }
-  }, [transaction, transactions, isOpen]);
+  }, [transaction, transactionList, isOpen, startInEditMode, isManualEntry]);
 
   useEffect(() => {
     const selected = editedTransactions[selectedIndex];
     if (!selected) return;
-    setEditedTitle(selected.title || 'Expense');
+    setEditedTitle(selected.title || (isManualEntry ? '' : 'Expense'));
     setEditedCategory(selected.category || 'Food');
     setEditedAmount(selected.amount ? String(selected.amount) : '');
     setEditedType(selected.type || 'Debit');
@@ -83,7 +99,8 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isSaving && !showSuccessCheck) {
+      if ((e.key === 'Escape' || (e.altKey && e.key.toLowerCase() === 'x')) && !isSaving && !showSuccessCheck) {
+        e.preventDefault();
         onClose();
       }
       if (e.key === 'Tab' && modalContainerRef.current) {
@@ -116,18 +133,26 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
   // Focus title field on entering edit mode
   useEffect(() => {
     if (isEditing) {
-      titleInputRef.current?.focus();
+      amountInputRef.current?.focus();
     }
   }, [isEditing]);
 
   if (!isOpen || !transaction) return null;
 
   const currentCurrency = transaction.currency || 'USD';
+  const categoryOptions = editedType === 'Credit' ? ALLOWED_INCOME_CATEGORIES : ALLOWED_CATEGORIES;
+
+  const moveToNextField = (event: React.KeyboardEvent, nextField: React.RefObject<HTMLElement | null>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      nextField.current?.focus();
+    }
+  };
 
   const handleToggleEdit = () => {
     if (isEditing) {
       // Revert edits
-      setEditedTitle(transaction.title || 'Expense');
+      setEditedTitle(transaction.title || (isManualEntry ? '' : 'Expense'));
       setEditedCategory(transaction.category || 'Food');
       setEditedAmount(transaction.amount ? String(transaction.amount) : '');
       setEditedType(transaction.type || 'Debit');
@@ -150,6 +175,10 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
     }
 
     setValidationError(null);
+    if (isManualEntry && isEditing) {
+      setIsEditing(false);
+      return;
+    }
     if (isMultiple && isEditing) {
       setEditedTransactions(current => current.map((item, index) => index === selectedIndex ? {
         title: editedTitle.trim(), category: editedCategory, amount: numAmount, currency: item.currency, type: editedType
@@ -166,6 +195,15 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
         type: editedType
       };
       await onSave(finalTransaction);
+
+      // Manual entries close immediately after the save completes. The
+      // parent owns the open state, so do not also start the success timeout
+      // used by the voice flow.
+      if (isManualEntry) {
+        onClose();
+        return;
+      }
+
       // Trigger short success checkmark before closing
       setShowSuccessCheck(true);
       setTimeout(() => {
@@ -306,6 +344,7 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
                       </label>
                       <input
                         id="confirm-edit-amount"
+                        ref={amountInputRef}
                         type="number"
                         step="any"
                         min="0.01"
@@ -314,6 +353,7 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
                         onChange={(e) => setEditedAmount(e.target.value)}
                         placeholder="0.00"
                         required
+                        onKeyDown={(event) => moveToNextField(event, debitButtonRef)}
                       />
                     </div>
 
@@ -323,15 +363,25 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
                       <div className="type-toggle-switch" role="group" aria-label="Transaction type toggle">
                         <button
                           type="button"
+                          ref={debitButtonRef}
                           className={`type-toggle-btn ${editedType === 'Debit' ? 'active debit' : ''}`}
-                          onClick={() => setEditedType('Debit')}
+                          onClick={() => {
+                            setEditedType('Debit');
+                            if (!ALLOWED_CATEGORIES.includes(editedCategory)) setEditedCategory('Other');
+                          }}
+                          onKeyDown={(event) => moveToNextField(event, creditButtonRef)}
                         >
                           Debit (Expense)
                         </button>
                         <button
                           type="button"
+                          ref={creditButtonRef}
                           className={`type-toggle-btn ${editedType === 'Credit' ? 'active credit' : ''}`}
-                          onClick={() => setEditedType('Credit')}
+                          onClick={() => {
+                            setEditedType('Credit');
+                            if (!ALLOWED_INCOME_CATEGORIES.includes(editedCategory)) setEditedCategory('Other');
+                          }}
+                          onKeyDown={(event) => moveToNextField(event, categorySelectRef)}
                         >
                           Credit (Income)
                         </button>
@@ -345,11 +395,13 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
                       </label>
                       <select
                         id="confirm-edit-category"
+                        ref={categorySelectRef}
                         className="form-field-select"
                         value={editedCategory}
                         onChange={(e) => setEditedCategory(e.target.value)}
+                        onKeyDown={(event) => moveToNextField(event, titleInputRef)}
                       >
-                        {ALLOWED_CATEGORIES.map((cat) => (
+                        {categoryOptions.map((cat) => (
                           <option key={cat} value={cat}>
                             {cat}
                           </option>
@@ -372,6 +424,7 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
                         placeholder="e.g. Lunch with coworkers"
                         maxLength={100}
                         required
+                        onKeyDown={(event) => moveToNextField(event, reviewButtonRef)}
                       />
                     </div>
                   </div>
@@ -395,21 +448,24 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
                   <span>Back</span>
                 </button>
 
-                <button
-                  type="button"
-                  className="voice-modal-btn secondary"
-                  onClick={handleToggleEdit}
-                  disabled={isSaving}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                    {isEditing ? 'close' : 'edit'}
-                  </span>
-                  <span>{isEditing ? 'Cancel Edit' : 'Edit'}</span>
-                </button>
+                {!isManualEntry && (
+                  <button
+                    type="button"
+                    className="voice-modal-btn secondary"
+                    onClick={handleToggleEdit}
+                    disabled={isSaving}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                      {isEditing ? 'close' : 'edit'}
+                    </span>
+                    <span>{isEditing ? 'Cancel Edit' : 'Edit'}</span>
+                  </button>
+                )}
               </div>
 
               <button
                 type="button"
+                ref={reviewButtonRef}
                 className="voice-modal-btn primary"
                 onClick={handleSaveClick}
                 disabled={isSaving}
@@ -424,7 +480,7 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
                 ) : (
                   <>
                     <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>check</span>
-                    <span>{isMultiple && isEditing ? 'Done Editing' : 'Save Transaction'}</span>
+                    <span>{isManualEntry && isEditing ? 'Review Transaction' : isMultiple && isEditing ? 'Done Editing' : 'Save Transaction'}</span>
                   </>
                 )}
               </button>

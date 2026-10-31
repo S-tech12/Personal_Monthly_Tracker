@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeToggle } from './ThemeToggle';
+import { Modal } from './Modal';
 import { useAuth } from '../../hooks/useAuth';
 import { ROUTES } from '../../constants/routes';
 import '../../styles/components/Header.css';
@@ -20,7 +21,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
-  title = 'VoiceSpend', 
+  title = 'Spendly', 
   navItems,
   userAvatarUrl
 }) => {
@@ -28,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
   const { user, logout, isAuthenticated } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -59,8 +61,13 @@ export const Header: React.FC<HeaderProps> = ({
     setIsMobileMenuOpen((prev) => !prev);
   };
 
-  const handleLogout = () => {
+  const askForLogout = () => {
     setIsMobileMenuOpen(false);
+    setIsLogoutModalOpen(true);
+  };
+
+  const handleLogout = () => {
+    setIsLogoutModalOpen(false);
     logout();
   };
 
@@ -69,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({
       <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
         <div className="header-container">
           {/* Logo / Brand */}
-          <Link to={isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN} className="header-brand" aria-label="VoiceSpend Home">
+          <Link to={isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN} className="header-brand" aria-label="Spendly Home">
             <div className="header-brand-icon">
               <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>mic</span>
             </div>
@@ -119,7 +126,7 @@ export const Header: React.FC<HeaderProps> = ({
                   )}
                 </Link>
                 <button 
-                  onClick={handleLogout}
+                  onClick={askForLogout}
                   className="header-logout-btn"
                   title="Logout"
                   aria-label="Logout"
@@ -235,7 +242,7 @@ export const Header: React.FC<HeaderProps> = ({
                 
                 {isAuthenticated && (
                   <button 
-                    onClick={handleLogout}
+                    onClick={askForLogout}
                     className="mobile-logout-button"
                   >
                     <span className="material-symbols-outlined">logout</span>
@@ -247,6 +254,35 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         )}
       </AnimatePresence>
+
+      <Modal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        title="Sign out of Spendly?"
+      >
+        <div className="logout-confirm-content">
+          <div className="logout-confirm-icon">
+            <span className="material-symbols-outlined">logout</span>
+          </div>
+          <p>Are you sure you want to log out of your account?</p>
+          <div className="logout-confirm-actions">
+            <button
+              type="button"
+              className="logout-cancel-btn"
+              onClick={() => setIsLogoutModalOpen(false)}
+            >
+              No, stay signed in
+            </button>
+            <button
+              type="button"
+              className="logout-confirm-btn"
+              onClick={handleLogout}
+            >
+              Yes, log out
+            </button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useLogin } from '../hooks/useLogin';
 import { ROUTES } from '../constants/routes';
@@ -9,6 +9,13 @@ import { ThemeToggle } from '../components/common/ThemeToggle';
 import '../styles/pages/LoginPage.css';
 
 export const LoginPage: React.FC = () => {
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+  const signInButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    emailInputRef.current?.focus();
+  }, []);
   const {
     email,
     setEmail,
@@ -32,6 +39,13 @@ export const LoginPage: React.FC = () => {
     handleVerifyOtp,
   } = useLogin();
 
+  const moveOnEnter = (event: React.KeyboardEvent, next: React.RefObject<HTMLElement | null>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      next.current?.focus();
+    }
+  };
+
   const forgotPasswordLink = (
     <button 
       type="button" 
@@ -49,7 +63,7 @@ export const LoginPage: React.FC = () => {
           <div className="auth-brand-icon">
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>mic</span>
           </div>
-          <span className="auth-brand-name">VoiceSpend</span>
+          <span className="auth-brand-name">Spendly</span>
         </Link>
         <ThemeToggle />
       </div>
@@ -115,7 +129,7 @@ export const LoginPage: React.FC = () => {
           <main className="login-container">
             <div className="login-header">
               <h2 className="login-card-title">Welcome Back</h2>
-              <p className="login-subtitle">Sign in to your VoiceSpend account to continue.</p>
+              <p className="login-subtitle">Sign in to your Spendly account to continue.</p>
             </div>
 
             {/* Login Card */}
@@ -124,6 +138,7 @@ export const LoginPage: React.FC = () => {
                 {/* Email Field */}
                 <div>
                   <Input
+                    ref={emailInputRef}
                     label="Email Address"
                     type="email"
                     value={email}
@@ -131,6 +146,7 @@ export const LoginPage: React.FC = () => {
                     placeholder="name@example.com"
                     required
                     leftIcon="mail"
+                    onKeyDown={(event) => moveOnEnter(event, passwordInputRef)}
                   />
                   {errors.email && (
                     <p style={{ color: 'var(--color-error)', fontSize: '0.75rem', marginTop: '0.25rem', padding: '0 0.25rem' }}>
@@ -142,6 +158,7 @@ export const LoginPage: React.FC = () => {
                 {/* Password Field */}
                 <div>
                   <Input
+                    ref={passwordInputRef}
                     label="Password"
                     type={showPassword ? 'text' : 'password'}
                     value={password}
@@ -152,6 +169,7 @@ export const LoginPage: React.FC = () => {
                     rightIcon={showPassword ? 'visibility_off' : 'visibility'}
                     onRightIconClick={togglePasswordVisibility}
                     rightActionNode={forgotPasswordLink}
+                    onKeyDown={(event) => moveOnEnter(event, signInButtonRef)}
                   />
                   {errors.password && (
                     <p style={{ color: 'var(--color-error)', fontSize: '0.75rem', marginTop: '0.25rem', padding: '0 0.25rem' }}>
@@ -162,6 +180,7 @@ export const LoginPage: React.FC = () => {
 
                 {/* Login Action */}
                 <Button 
+                  ref={signInButtonRef}
                   type="submit" 
                   disabled={isLoggingIn} 
                   icon="arrow_forward"

@@ -1,6 +1,6 @@
-# VoiceSpend
+# Spendly
 
-VoiceSpend is a React + TypeScript + Vite project with a scalable, production-grade folder structure.
+Spendly is a React + TypeScript + Vite project with a scalable, production-grade folder structure.
 
 ## Folder Structure
 

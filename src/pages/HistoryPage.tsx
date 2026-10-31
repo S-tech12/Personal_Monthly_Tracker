@@ -121,7 +121,7 @@ export const HistoryPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="history-page">
-        <Header title="VoiceSpend" navItems={MAIN_NAV_ITEMS} />
+        <Header title="Spendly" navItems={MAIN_NAV_ITEMS} />
         <Section variant="plain">
           <Skeleton />
         </Section>
@@ -132,7 +132,7 @@ export const HistoryPage: React.FC = () => {
 
   return (
     <div className="history-page">
-      <Header title="VoiceSpend" navItems={MAIN_NAV_ITEMS} />
+      <Header title="Spendly" navItems={MAIN_NAV_ITEMS} />
 
       {/* Hero Section */}
       <Section variant="gradient" className="history-hero-section">

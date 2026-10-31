@@ -49,7 +49,8 @@ export const VoiceListeningOverlay: React.FC<VoiceListeningOverlayProps> = ({
   // Listen for Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' || (e.altKey && e.key.toLowerCase() === 'x')) {
+        e.preventDefault();
         onClose();
       }
     };
@@ -113,7 +114,7 @@ export const VoiceListeningOverlay: React.FC<VoiceListeningOverlayProps> = ({
                 <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-primary)' }}>
                   graphic_eq
                 </span>
-                <span className="voice-top-label">VoiceSpend Assistant</span>
+                <span className="voice-top-label">Spendly Assistant</span>
               </div>
 
               <button

@@ -74,7 +74,8 @@ export const VoiceInputModal: React.FC<VoiceInputModalProps> = ({
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' || (e.altKey && e.key.toLowerCase() === 'x')) {
+        e.preventDefault();
         handleClose();
       }
       if (e.key === 'Tab' && modalContainerRef.current) {

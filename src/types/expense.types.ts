@@ -52,6 +52,18 @@ export interface CurrencyTotal {
 export interface ExpenseSummary {
   today: CurrencyTotal[];
   thisMonth: CurrencyTotal[];
+  income: {
+    today: CurrencyTotal[];
+    thisMonth: CurrencyTotal[];
+  };
+  expenses: {
+    today: CurrencyTotal[];
+    thisMonth: CurrencyTotal[];
+  };
+  net: {
+    today: CurrencyTotal[];
+    thisMonth: CurrencyTotal[];
+  };
 }
 
 export interface GetExpenseSummaryResponse {

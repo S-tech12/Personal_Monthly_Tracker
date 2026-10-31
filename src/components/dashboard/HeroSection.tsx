@@ -6,6 +6,7 @@ import { ROUTES } from '../../constants/routes';
 
 interface HeroSectionProps {
   onOpenVoiceModal: () => void;
+  onOpenManualEntry: () => void;
   onSendReport: () => void;
   onQuickPrompt?: (promptText: string) => void;
 }
@@ -18,6 +19,7 @@ const QUICK_EXAMPLES = [
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   onOpenVoiceModal,
+  onOpenManualEntry,
   onSendReport,
   onQuickPrompt
 }) => {
@@ -40,7 +42,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </h1>
 
           <p className="dashboard-hero-subhead">
-            No more tedious manual forms. Simply tap Voice Command, speak your transaction in everyday language, and VoiceSpend automatically categorizes, tracks, and protects your budget in real time.
+            No more tedious manual forms. Simply tap Voice Command, speak your transaction in everyday language, and Spendly automatically categorizes, tracks, and protects your budget in real time.
           </p>
 
           <div className="dashboard-hero-actions">
@@ -115,10 +117,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <button
               type="button"
               className="hero-feature-action-btn"
-              onClick={onOpenVoiceModal}
+              disabled
+              aria-disabled="true"
+              title="Voice command is locked"
             >
-              <span className="material-symbols-outlined">mic</span>
+              <span className="material-symbols-outlined">lock</span>
               <span>Open Voice Command</span>
+            </button>
+            <button
+              type="button"
+              className="hero-manual-entry-btn"
+              onClick={onOpenManualEntry}
+            >
+              <span className="material-symbols-outlined">edit_note</span>
+              <span>Add Entry Manually</span>
             </button>
           </div>
         </div>
