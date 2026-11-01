@@ -788,7 +788,10 @@ export const DashboardPage: React.FC = () => {
         transaction={manualTransaction}
         onClose={() => setIsManualEntryModalOpen(false)}
         onBack={() => setIsManualEntryModalOpen(false)}
-        onSave={handleSaveTransaction}
+        onSave={async (finalData) => {
+          await handleSaveTransaction(finalData);
+          setIsManualEntryModalOpen(false);
+        }}
         isSaving={isSaving}
         startInEditMode
         isManualEntry
