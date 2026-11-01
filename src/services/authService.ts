@@ -1,10 +1,11 @@
 import type { Auth, LoginCredentials, LoginResponse, SignupRequest, SignupResponse, VerifyOtpRequest, VerifyOtpResponse, GetCurrentUserResponse, ForgotPasswordRequest, ResetPasswordRequest, DefaultResponse } from '../types/auth.types';
 import { apiClient } from './apiClient';
+import { API_URL } from './apiConfig';
 
 export const authService = {
   login: async (payload: LoginCredentials): Promise<LoginResponse> => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -22,7 +23,7 @@ export const authService = {
 
   getCurrentUser: async (): Promise<GetCurrentUserResponse> => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/me', {
+      const response = await fetch(`${API_URL}/auth/me`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -39,7 +40,7 @@ export const authService = {
 
   logout: async (): Promise<{ success: boolean; message: string }> => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/logout', {
+      const response = await fetch(`${API_URL}/auth/logout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -59,7 +60,7 @@ export const authService = {
     // But since this is a new backend, we will use fetch for now or apiClient if it's configured
     // Wait, let's look at what apiClient is exactly. Let's just use it if it exposes post.
     try {
-      const response = await fetch('http://localhost:5000/api/auth/signup', {
+      const response = await fetch(`${API_URL}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -76,7 +77,7 @@ export const authService = {
 
   verifySignupOtp: async (payload: VerifyOtpRequest): Promise<VerifyOtpResponse> => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/verify-signup-otp', {
+      const response = await fetch(`${API_URL}/auth/verify-signup-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -93,7 +94,7 @@ export const authService = {
 
   forgotPassword: async (payload: ForgotPasswordRequest): Promise<DefaultResponse> => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
+      const response = await fetch(`${API_URL}/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -108,7 +109,7 @@ export const authService = {
 
   resetPassword: async (payload: ResetPasswordRequest): Promise<DefaultResponse> => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/reset-password', {
+      const response = await fetch(`${API_URL}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -123,7 +124,7 @@ export const authService = {
 
   updatePassword: async (payload: { newPassword?: string; confirmPassword?: string }): Promise<DefaultResponse> => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/update-password', {
+      const response = await fetch(`${API_URL}/auth/update-password`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -139,7 +140,7 @@ export const authService = {
 
   deleteAccount: async (): Promise<DefaultResponse> => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/delete-account', {
+      const response = await fetch(`${API_URL}/auth/delete-account`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'

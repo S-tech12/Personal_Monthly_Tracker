@@ -1,8 +1,9 @@
 import type { BudgetOverviewResponse, SetOverallLimitRequest, UpsertCategoryBudgetRequest } from '../types/budget.types';
+import { API_URL } from './apiConfig';
 
 export const budgetService = {
   getBudgetOverview: async (): Promise<BudgetOverviewResponse> => {
-    const response = await fetch('http://localhost:5000/api/budgets', {
+    const response = await fetch(`${API_URL}/budgets`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -17,7 +18,7 @@ export const budgetService = {
   },
 
   setOverallLimit: async (payload: SetOverallLimitRequest) => {
-    const response = await fetch('http://localhost:5000/api/budgets/overall-limit', {
+    const response = await fetch(`${API_URL}/budgets/overall-limit`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -33,7 +34,7 @@ export const budgetService = {
   },
 
   upsertCategoryBudget: async (payload: UpsertCategoryBudgetRequest) => {
-    const response = await fetch('http://localhost:5000/api/budgets/category', {
+    const response = await fetch(`${API_URL}/budgets/category`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

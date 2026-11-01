@@ -1,9 +1,10 @@
 import type { CreateVoiceExpenseRequest, CreateVoiceExpenseResponse, ParsedVoiceExpenseResponse, Expense, GetExpensesByDateResponse, GetExpenseSummaryResponse, CategoryBreakdownResponse, RecentExpensesResponse } from '../types/expense.types';
+import { API_URL } from './apiConfig';
 
 export const expenseService = {
   createFromVoice: async (payload: CreateVoiceExpenseRequest): Promise<CreateVoiceExpenseResponse> => {
     try {
-      const response = await fetch('http://localhost:5000/api/expenses/voice', {
+      const response = await fetch(`${API_URL}/expenses/voice`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -20,7 +21,7 @@ export const expenseService = {
   },
 
   parseFromVoice: async (payload: CreateVoiceExpenseRequest): Promise<ParsedVoiceExpenseResponse> => {
-    const response = await fetch('http://localhost:5000/api/expenses/voice/parse', {
+    const response = await fetch(`${API_URL}/expenses/voice/parse`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(payload)
     });
     const data = await response.json();
@@ -29,7 +30,7 @@ export const expenseService = {
   },
 
   createBulk: async (expenses: Array<Pick<Expense, 'title' | 'category' | 'amount' | 'currency' | 'type'>>) => {
-    const response = await fetch('http://localhost:5000/api/expenses/bulk', {
+    const response = await fetch(`${API_URL}/expenses/bulk`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ expenses })
     });
     const data = await response.json();
@@ -39,7 +40,7 @@ export const expenseService = {
   
   getExpensesByDate: async (date: string): Promise<GetExpensesByDateResponse> => {
     try {
-      const response = await fetch(`http://localhost:5000/api/expenses/by-date?date=${date}`, {
+      const response = await fetch(`${API_URL}/expenses/by-date?date=${date}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -56,7 +57,7 @@ export const expenseService = {
 
   getExpenseSummary: async (): Promise<GetExpenseSummaryResponse> => {
     try {
-      const response = await fetch('http://localhost:5000/api/expenses/summary', {
+      const response = await fetch(`${API_URL}/expenses/summary`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -74,7 +75,7 @@ export const expenseService = {
 
   getCategoryBreakdown: async (): Promise<CategoryBreakdownResponse> => {
     try {
-      const response = await fetch('http://localhost:5000/api/expenses/category-breakdown', {
+      const response = await fetch(`${API_URL}/expenses/category-breakdown`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -91,7 +92,7 @@ export const expenseService = {
 
   getRecentExpenses: async (limit: number = 10): Promise<RecentExpensesResponse> => {
     try {
-      const response = await fetch(`http://localhost:5000/api/expenses/recent?limit=${limit}`, {
+      const response = await fetch(`${API_URL}/expenses/recent?limit=${limit}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -107,7 +108,7 @@ export const expenseService = {
   },
 
   getCurrentMonthExpenses: async (): Promise<RecentExpensesResponse> => {
-    const response = await fetch('http://localhost:5000/api/expenses/current-month', {
+    const response = await fetch(`${API_URL}/expenses/current-month`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include'
@@ -118,7 +119,7 @@ export const expenseService = {
   },
 
   getCurrentWeekExpenses: async (): Promise<RecentExpensesResponse> => {
-    const response = await fetch('http://localhost:5000/api/expenses/current-week', {
+    const response = await fetch(`${API_URL}/expenses/current-week`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include'
