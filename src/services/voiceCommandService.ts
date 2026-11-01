@@ -2,7 +2,7 @@ import type { VoiceCommandRequest, VoiceCommandResponse } from '../types/voiceCo
 
 export const voiceCommandService = {
   sendVoiceCommand: async (payload: VoiceCommandRequest): Promise<VoiceCommandResponse> => {
-    const response = await fetch('http://localhost:5000/api/voice-command', {
+    const response = await fetch(`${API_URL}/voice-command`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -17,3 +17,4 @@ export const voiceCommandService = {
     return response.json();
   }
 };
+import { API_URL } from './apiConfig';

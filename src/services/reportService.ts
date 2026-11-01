@@ -2,7 +2,7 @@ import type { VoiceReportRequest, VoiceReportResponse } from '../types/report.ty
 
 export const reportService = {
   sendCurrentMonthReport: async (): Promise<{ success: boolean; message: string }> => {
-    const response = await fetch('http://localhost:5000/api/reports/current-month', {
+    const response = await fetch(`${API_URL}/reports/current-month`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -17,7 +17,7 @@ export const reportService = {
   },
 
   sendVoiceRequestedReport: async (payload: VoiceReportRequest): Promise<VoiceReportResponse> => {
-    const response = await fetch('http://localhost:5000/api/reports/voice-request', {
+    const response = await fetch(`${API_URL}/reports/voice-request`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -32,3 +32,4 @@ export const reportService = {
     return data;
   }
 };
+import { API_URL } from './apiConfig';

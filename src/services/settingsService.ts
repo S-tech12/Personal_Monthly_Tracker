@@ -3,7 +3,7 @@ import type { SettingsData, GetSettingsResponse, UpdateSettingsResponse } from '
 export const settingsService = {
   getSettings: async (): Promise<GetSettingsResponse> => {
     try {
-      const response = await fetch('http://localhost:5000/api/settings', {
+      const response = await fetch(`${API_URL}/settings`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -20,7 +20,7 @@ export const settingsService = {
 
   updateSettings: async (payload: SettingsData): Promise<UpdateSettingsResponse> => {
     try {
-      const response = await fetch('http://localhost:5000/api/settings', {
+      const response = await fetch(`${API_URL}/settings`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -36,3 +36,4 @@ export const settingsService = {
     }
   }
 };
+import { API_URL } from './apiConfig';

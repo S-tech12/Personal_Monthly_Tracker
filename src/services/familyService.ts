@@ -1,10 +1,11 @@
 import type { FamilyOverview, PendingInvite, SentInvite } from '../types/family.types';
+import { API_URL } from './apiConfig';
 
-const API_URL = 'http://localhost:5000/api/family';
+const FAMILY_API_URL = `${API_URL}/family`;
 
 export const familyService = {
   getOverview: async (): Promise<{ success: boolean; data: FamilyOverview }> => {
-    const response = await fetch(`${API_URL}/overview`, {
+    const response = await fetch(`${FAMILY_API_URL}/overview`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include'
@@ -19,7 +20,7 @@ export const familyService = {
   },
 
   getPendingInvites: async (): Promise<{ success: boolean; data: { invites: PendingInvite[] } }> => {
-    const response = await fetch(`${API_URL}/invites/pending`, {
+    const response = await fetch(`${FAMILY_API_URL}/invites/pending`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include'
@@ -34,7 +35,7 @@ export const familyService = {
   },
 
   getSentInvites: async (): Promise<{ success: boolean; data: { invites: SentInvite[] } }> => {
-    const response = await fetch(`${API_URL}/invites/sent`, {
+    const response = await fetch(`${FAMILY_API_URL}/invites/sent`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include'
@@ -49,7 +50,7 @@ export const familyService = {
   },
 
   sendInvite: async (email: string): Promise<{ success: boolean; message: string }> => {
-    const response = await fetch(`${API_URL}/invite`, {
+    const response = await fetch(`${FAMILY_API_URL}/invite`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -65,7 +66,7 @@ export const familyService = {
   },
 
   respondToInvite: async (inviteId: string, action: 'accept' | 'reject'): Promise<{ success: boolean; message: string }> => {
-    const response = await fetch(`${API_URL}/respond`, {
+    const response = await fetch(`${FAMILY_API_URL}/respond`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
