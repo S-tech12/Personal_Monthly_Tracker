@@ -196,13 +196,10 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
       };
       await onSave(finalTransaction);
 
-      // Manual entries close immediately after the save completes. The
-      // parent owns the open state, so do not also start the success timeout
-      // used by the voice flow.
-      if (isManualEntry) {
-        onClose();
-        return;
-      }
+      // The parent owns the manual modal lifecycle and closes it after the
+      // save flow completes. This avoids a close/reopen transition while the
+      // dashboard refreshes its data.
+      if (isManualEntry) return;
 
       // Trigger short success checkmark before closing
       setShowSuccessCheck(true);
