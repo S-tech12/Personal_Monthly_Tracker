@@ -2,6 +2,8 @@ export interface Expense {
   _id: string;
   title: string;
   category: string;
+  categoryId?: string | null;
+  subCategoryId?: string | null;
   amount: number;
   currency: string;
   expenseDateTime: string;

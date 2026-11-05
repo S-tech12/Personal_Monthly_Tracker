@@ -4,10 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { formatAmountWithCurrency, getCurrencyIcon } from '../../utils/formatCurrency';
 import { getCategoryColor } from '../../constants/categoryColors';
 import '../../styles/components/VoiceModals.css';
+import type { UserCategory } from '../../types/category.types';
 
 export interface ExtractedTransaction {
   title: string;
   category: string;
+  categoryId?: string | null;
+  subCategoryId?: string | null;
   amount: number;
   currency: string;
   type?: 'Debit' | 'Credit';
@@ -25,6 +28,7 @@ interface ConfirmTransactionModalProps {
   isSaving?: boolean;
   startInEditMode?: boolean;
   isManualEntry?: boolean;
+  categories?: UserCategory[];
 }
 
 const ALLOWED_CATEGORIES = [
@@ -43,13 +47,16 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
   onSave,
   isSaving = false,
   startInEditMode = false,
-  isManualEntry = false
+  isManualEntry = false,
+  categories = []
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   const [editedCategory, setEditedCategory] = useState('Food');
   const [editedAmount, setEditedAmount] = useState<string>('');
   const [editedType, setEditedType] = useState<'Debit' | 'Credit'>('Debit');
+  const [editedCategoryId, setEditedCategoryId] = useState<string | null>(null);
+  const [editedSubCategoryId, setEditedSubCategoryId] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [showSuccessCheck, setShowSuccessCheck] = useState(false);
   const transactionList = transactions ?? EMPTY_TRANSACTIONS;
@@ -75,6 +82,8 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
       setEditedCategory(transaction.category || 'Food');
       setEditedAmount(transaction.amount ? String(transaction.amount) : '');
       setEditedType(transaction.type || 'Debit');
+      setEditedCategoryId(transaction.categoryId || null);
+      setEditedSubCategoryId(transaction.subCategoryId || null);
       setIsEditing(startInEditMode);
       setValidationError(null);
       setShowSuccessCheck(false);
@@ -93,6 +102,16 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
     setEditedAmount(selected.amount ? String(selected.amount) : '');
     setEditedType(selected.type || 'Debit');
   }, [selectedIndex, editedTransactions]);
+
+  useEffect(() => {
+    if (!isOpen || !isManualEntry || !categories.length || transaction?.categoryId) return;
+    const firstCategory = categories.find(category => category.type === editedType && category.active);
+    if (firstCategory) {
+      setEditedCategory(firstCategory.name);
+      setEditedCategoryId(firstCategory._id);
+      setEditedSubCategoryId(null);
+    }
+  }, [isOpen, isManualEntry, categories, editedType, transaction?.categoryId]);
 
   // Handle ESC and focus trapping
   useEffect(() => {
@@ -140,7 +159,9 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
   if (!isOpen || !transaction) return null;
 
   const currentCurrency = transaction.currency || 'USD';
-  const categoryOptions = editedType === 'Credit' ? ALLOWED_INCOME_CATEGORIES : ALLOWED_CATEGORIES;
+  const dynamicCategories = categories.filter(category => category.type === editedType && category.active);
+  const selectedDynamicCategory = dynamicCategories.find(category => category._id === editedCategoryId);
+  const categoryOptions = dynamicCategories.length > 0 ? dynamicCategories.map(category => category.name) : (editedType === 'Credit' ? ALLOWED_INCOME_CATEGORIES : ALLOWED_CATEGORIES);
 
   const moveToNextField = (event: React.KeyboardEvent, nextField: React.RefObject<HTMLElement | null>) => {
     if (event.key === 'Enter') {
@@ -156,6 +177,8 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
       setEditedCategory(transaction.category || 'Food');
       setEditedAmount(transaction.amount ? String(transaction.amount) : '');
       setEditedType(transaction.type || 'Debit');
+      setEditedCategoryId(transaction.categoryId || null);
+      setEditedSubCategoryId(transaction.subCategoryId || null);
       setValidationError(null);
       setIsEditing(false);
     } else {
@@ -181,7 +204,7 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
     }
     if (isMultiple && isEditing) {
       setEditedTransactions(current => current.map((item, index) => index === selectedIndex ? {
-        title: editedTitle.trim(), category: editedCategory, amount: numAmount, currency: item.currency, type: editedType
+        title: editedTitle.trim(), category: editedCategory, categoryId: editedCategoryId, subCategoryId: editedSubCategoryId, amount: numAmount, currency: item.currency, type: editedType
       } : item));
       setIsEditing(false);
       return;
@@ -190,6 +213,8 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
       const finalTransaction = isMultiple ? editedTransactions : {
         title: editedTitle.trim(),
         category: editedCategory,
+        categoryId: editedCategoryId,
+        subCategoryId: editedSubCategoryId,
         amount: numAmount,
         currency: currentCurrency,
         type: editedType
@@ -364,6 +389,8 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
                           className={`type-toggle-btn ${editedType === 'Debit' ? 'active debit' : ''}`}
                           onClick={() => {
                             setEditedType('Debit');
+                            setEditedCategoryId(null);
+                            setEditedSubCategoryId(null);
                             if (!ALLOWED_CATEGORIES.includes(editedCategory)) setEditedCategory('Other');
                           }}
                           onKeyDown={(event) => moveToNextField(event, creditButtonRef)}
@@ -376,6 +403,8 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
                           className={`type-toggle-btn ${editedType === 'Credit' ? 'active credit' : ''}`}
                           onClick={() => {
                             setEditedType('Credit');
+                            setEditedCategoryId(null);
+                            setEditedSubCategoryId(null);
                             if (!ALLOWED_INCOME_CATEGORIES.includes(editedCategory)) setEditedCategory('Other');
                           }}
                           onKeyDown={(event) => moveToNextField(event, categorySelectRef)}
@@ -395,7 +424,13 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
                         ref={categorySelectRef}
                         className="form-field-select"
                         value={editedCategory}
-                        onChange={(e) => setEditedCategory(e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const dynamic = dynamicCategories.find(category => category.name === value);
+                          setEditedCategory(value);
+                          setEditedCategoryId(dynamic?._id || null);
+                          setEditedSubCategoryId(null);
+                        }}
                         onKeyDown={(event) => moveToNextField(event, titleInputRef)}
                       >
                         {categoryOptions.map((cat) => (
@@ -405,6 +440,21 @@ export const ConfirmTransactionModal: React.FC<ConfirmTransactionModalProps> = (
                         ))}
                       </select>
                     </div>
+
+                    {selectedDynamicCategory && selectedDynamicCategory.subcategories.filter(item => item.active).length > 0 && (
+                      <div className="form-group-field">
+                        <label htmlFor="confirm-edit-subcategory" className="form-field-label">Subcategory</label>
+                        <select
+                          id="confirm-edit-subcategory"
+                          className="form-field-select"
+                          value={editedSubCategoryId || ''}
+                          onChange={(event) => setEditedSubCategoryId(event.target.value || null)}
+                        >
+                          <option value="">No subcategory</option>
+                          {selectedDynamicCategory.subcategories.filter(item => item.active).map(item => <option key={item._id} value={item._id}>{item.name}</option>)}
+                        </select>
+                      </div>
+                    )}
 
                     {/* Description Text Input */}
                     <div className="form-group-field">

@@ -14,6 +14,8 @@ import { Loader } from '../components/common/Loader';
 import { Section } from '../components/layout/Section';
 import { BackToTop } from '../components/layout/BackToTop';
 import '../styles/pages/SettingsPage.css';
+import { categoryService } from '../services/categoryService';
+import type { CategoryType, UserCategory } from '../types/category.types';
 
 export const SettingsPage: React.FC = () => {
   const {
@@ -34,6 +36,46 @@ export const SettingsPage: React.FC = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = React.useState(false);
   const [editingCategory, setEditingCategory] = React.useState<string>('');
   const [categoryLimit, setCategoryLimit] = React.useState('');
+  const [categories, setCategories] = React.useState<UserCategory[]>([]);
+  const [newCategoryName, setNewCategoryName] = React.useState('');
+  const [newCategoryType, setNewCategoryType] = React.useState<CategoryType>('Debit');
+  const [newSubcategory, setNewSubcategory] = React.useState<Record<string, string>>({});
+
+  const loadCategories = React.useCallback(async () => {
+    try { setCategories((await categoryService.list()).data.categories); } catch { /* settings remain usable if categories are unavailable */ }
+  }, []);
+
+  React.useEffect(() => { loadCategories(); }, [loadCategories]);
+
+  const handleCreateCategory = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!newCategoryName.trim()) return;
+    try {
+      await categoryService.create({ name: newCategoryName.trim(), type: newCategoryType });
+      setNewCategoryName('');
+      await loadCategories();
+    } catch (error: any) { window.alert(error.message); }
+  };
+
+  const handleAddSubcategory = async (categoryId: string) => {
+    const name = newSubcategory[categoryId]?.trim();
+    if (!name) return;
+    try {
+      await categoryService.addSubcategory(categoryId, name);
+      setNewSubcategory(current => ({ ...current, [categoryId]: '' }));
+      await loadCategories();
+    } catch (error: any) { window.alert(error.message); }
+  };
+
+  const handleRenameCategory = async (category: UserCategory) => {
+    const name = window.prompt('Category name', category.name);
+    if (name && name.trim() !== category.name) { await categoryService.update(category._id, { name: name.trim() }); await loadCategories(); }
+  };
+
+  const handleRenameSubcategory = async (category: UserCategory, subcategory: UserCategory['subcategories'][number]) => {
+    const name = window.prompt('Subcategory name', subcategory.name);
+    if (name && name.trim() !== subcategory.name) { await categoryService.updateSubcategory(category._id, subcategory._id, name.trim()); await loadCategories(); }
+  };
 
   const openCategoryModal = (budget: any) => {
     setEditingCategory(budget.category);
@@ -179,6 +221,47 @@ export const SettingsPage: React.FC = () => {
                 />
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="settings-card-box mt-6">
+          <div className="settings-box-header">
+            <span className="material-symbols-outlined text-primary">account_tree</span>
+            <h2 className="settings-box-title">My Categories</h2>
+          </div>
+          <form className="settings-box-content" onSubmit={handleCreateCategory}>
+            <div className="settings-field-group">
+              <label className="form-label">Category name</label>
+              <input className="form-input" value={newCategoryName} onChange={event => setNewCategoryName(event.target.value)} placeholder="e.g. Transportation" />
+            </div>
+            <div className="settings-field-group">
+              <label className="form-label">Transaction type</label>
+              <select className="form-input" value={newCategoryType} onChange={event => setNewCategoryType(event.target.value as CategoryType)}>
+                <option value="Debit">Debit (Expense)</option>
+                <option value="Credit">Credit (Income)</option>
+              </select>
+            </div>
+            <Button type="submit" style={{ alignSelf: 'flex-start' }}>Add Category</Button>
+          </form>
+          <div className="settings-category-caps-list">
+            {categories.length === 0 ? <div style={{ padding: '1rem', color: 'var(--color-on-surface-muted)' }}>Create a category to organize transactions.</div> : categories.map(category => (
+              <div key={category._id} className="settings-category-cap-row" style={{ alignItems: 'flex-start' }}>
+                <div style={{ flex: 1 }}>
+                  <p className="settings-toggle-title">{category.name} <span className="settings-toggle-desc">({category.type})</span></p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', margin: '8px 0' }}>
+                    {category.subcategories.filter(item => item.active).map(subcategory => <span key={subcategory._id} className="settings-toggle-desc" style={{ border: '1px solid var(--color-outline-variant)', borderRadius: '999px', padding: '4px 8px' }}>{subcategory.name} <button type="button" onClick={() => handleRenameSubcategory(category, subcategory)}>✎</button> <button type="button" onClick={async () => { await categoryService.removeSubcategory(category._id, subcategory._id); await loadCategories(); }}>×</button></span>)}
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input className="form-input" style={{ maxWidth: '220px' }} value={newSubcategory[category._id] || ''} onChange={event => setNewSubcategory(current => ({ ...current, [category._id]: event.target.value }))} placeholder="Add subcategory" />
+                    <Button type="button" variant="outline" onClick={() => handleAddSubcategory(category._id)} style={{ minWidth: 'auto', padding: '8px 12px' }}>Add</Button>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <Button type="button" variant="outline" onClick={() => handleRenameCategory(category)} style={{ minWidth: 'auto', padding: '8px 12px' }}>Edit</Button>
+                  <Button type="button" variant="outline" onClick={async () => { await categoryService.remove(category._id); await loadCategories(); }} style={{ minWidth: 'auto', padding: '8px 12px' }}>Delete</Button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

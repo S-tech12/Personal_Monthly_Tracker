@@ -8,6 +8,8 @@ export interface OverallBudget {
 
 export interface CategoryBudget {
   category: string;
+  categoryId?: string | null;
+  type?: 'Credit' | 'Debit';
   monthlyLimit: number;
   currency: string;
   currentSpent: number;
@@ -29,6 +31,8 @@ export interface SetOverallLimitRequest {
 
 export interface UpsertCategoryBudgetRequest {
   category: string;
+  categoryId?: string;
+  type?: 'Credit' | 'Debit';
   monthlyLimit: number;
   currency: string;
 }

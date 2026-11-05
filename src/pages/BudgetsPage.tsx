@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useBudget } from '../hooks/useBudget';
 import { useAuth } from '../hooks/useAuth';
 import { Header } from '../components/common/Header';
@@ -14,6 +14,8 @@ import { MAIN_NAV_ITEMS } from '../constants/navigation';
 import { Loader } from '../components/common/Loader';
 import { formatAmountWithCurrency } from '../utils/formatCurrency';
 import '../styles/pages/BudgetsPage.css';
+import { categoryService } from '../services/categoryService';
+import type { UserCategory } from '../types/category.types';
 
 const CATEGORY_OPTIONS = [
   { label: 'Select a category...', value: '' },
@@ -44,6 +46,11 @@ export const BudgetsPage: React.FC = () => {
   const [editingCategory, setEditingCategory] = useState<string>('');
   const [categoryName, setCategoryName] = useState('');
   const [categoryLimit, setCategoryLimit] = useState('');
+  const [categories, setCategories] = useState<UserCategory[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [categoryType, setCategoryType] = useState<'Credit' | 'Debit'>('Debit');
+
+  useEffect(() => { categoryService.list().then(response => setCategories(response.data.categories)).catch(() => setCategories([])); }, []);
 
   const [isOverallModalOpen, setIsOverallModalOpen] = useState(false);
   const [overallCurrency, setOverallCurrency] = useState('');
@@ -55,10 +62,14 @@ export const BudgetsPage: React.FC = () => {
     if (budget) {
       setEditingCategory(budget.category);
       setCategoryName(budget.category);
+      setSelectedCategoryId(budget.categoryId || '');
+      setCategoryType(budget.type || 'Debit');
       setCategoryLimit(budget.monthlyLimit.toString());
     } else {
       setEditingCategory('');
       setCategoryName('');
+      setSelectedCategoryId('');
+      setCategoryType('Debit');
       setCategoryLimit('');
     }
     setIsCategoryModalOpen(true);
@@ -78,7 +89,7 @@ export const BudgetsPage: React.FC = () => {
         ? categoryBudgets.find(b => b.category === editingCategory)!.currency 
         : defaultCurrency;
         
-      await handleUpsertCategoryBudget(categoryName, parseFloat(categoryLimit), currencyToSave);
+      await handleUpsertCategoryBudget(categoryName, parseFloat(categoryLimit), currencyToSave, selectedCategoryId || undefined, categoryType);
       setIsCategoryModalOpen(false);
     } catch (err) {
       // Error handled in hook
@@ -369,9 +380,17 @@ export const BudgetsPage: React.FC = () => {
           <div className="form-group">
             <label className="form-label">Category</label>
             <Select 
-              options={CATEGORY_OPTIONS}
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
+              options={categories.length > 0
+                ? [{ label: 'Select a category...', value: '' }, ...categories.filter(category => category.type === categoryType && category.active).map(category => ({ label: category.name, value: category._id }))]
+                : CATEGORY_OPTIONS}
+              value={selectedCategoryId || categoryName}
+              onChange={(e) => {
+                const value = e.target.value;
+                const selected = categories.find(category => category._id === value);
+                setSelectedCategoryId(selected?._id || '');
+                setCategoryName(selected?.name || value);
+                if (selected) setCategoryType(selected.type);
+              }}
               disabled={!!editingCategory}
             />
           </div>

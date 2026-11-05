@@ -59,11 +59,11 @@ export const useBudget = () => {
     }
   };
 
-  const handleUpsertCategoryBudget = async (category: string, monthlyLimit: number, currency: string) => {
+  const handleUpsertCategoryBudget = async (category: string, monthlyLimit: number, currency: string, categoryId?: string, type?: 'Credit' | 'Debit') => {
     setIsSaving(true);
     setError(null);
     try {
-      await budgetService.upsertCategoryBudget({ category, monthlyLimit, currency });
+      await budgetService.upsertCategoryBudget({ category, categoryId, type, monthlyLimit, currency });
       // TODO: show success toast
       refetch();
     } catch (err: any) {

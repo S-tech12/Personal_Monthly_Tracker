@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '../components/common/Header';
 import { Modal } from '../components/common/Modal';
@@ -28,6 +28,8 @@ import { getCurrencyIcon, formatAmountWithCurrency } from '../utils/formatCurren
 import { getCategoryColor } from '../constants/categoryColors';
 import type { Expense } from '../types/expense.types';
 import toast from 'react-hot-toast';
+import { categoryService } from '../services/categoryService';
+import type { UserCategory } from '../types/category.types';
 import '../styles/pages/DashboardPage.css';
 
 export const DashboardPage: React.FC = () => {
@@ -68,6 +70,13 @@ export const DashboardPage: React.FC = () => {
   const [isCurrentMonthModalOpen, setIsCurrentMonthModalOpen] = useState(false);
   const [currentMonthExpenses, setCurrentMonthExpenses] = useState<Expense[]>([]);
   const [isCurrentMonthLoading, setIsCurrentMonthLoading] = useState(false);
+  const [categories, setCategories] = useState<UserCategory[]>([]);
+
+  useEffect(() => {
+    categoryService.list()
+      .then(response => setCategories(response.data.categories))
+      .catch(() => setCategories([]));
+  }, []);
 
   const refreshAllData = async () => {
     // Wait for the summary request so the income, expense, and monthly-total
@@ -781,6 +790,7 @@ export const DashboardPage: React.FC = () => {
         onBack={handleBackToInput}
         onSave={handleSaveTransaction}
         isSaving={isSaving}
+        categories={categories}
       />
 
       <ConfirmTransactionModal
@@ -795,6 +805,7 @@ export const DashboardPage: React.FC = () => {
         isSaving={isSaving}
         startInEditMode
         isManualEntry
+        categories={categories}
       />
     </div>
   );
